@@ -1,0 +1,75 @@
+<html>
+
+<head>
+    <script>
+        
+        if (!sessionStorage.length) {
+            // Ask other tabs for session storage
+            localStorage.setItem('getSessionStorage', Date.now());
+        };
+
+        window.addEventListener('storage', function (event) {
+
+            //console.log('storage event', event);
+
+            if (event.key == 'getSessionStorage') {
+                // Some tab asked for the sessionStorage -> send it
+
+                localStorage.setItem('sessionStorage', JSON.stringify(sessionStorage));
+                localStorage.removeItem('sessionStorage');
+
+            } else if (event.key == 'sessionStorage') {
+                // sessionStorage is empty -> fill it
+
+                var data = JSON.parse(event.newValue),
+                    value;
+
+                for (key in data) {
+                    sessionStorage.setItem(key, data[key]);
+                    if(key == 'name'){
+                        document.getElementById('showData').innerHTML = JSON.parse(data[key]);
+                    }
+                }
+
+            } 
+            else if(event.key == 'dataUpdated'){
+                var data = JSON.parse(event.newValue),
+                    value;
+
+                for (key in data) {
+                    sessionStorage.setItem(key, data[key]);
+                    if(key == 'name'){
+                        document.getElementById('showData').innerHTML = JSON.parse(data[key]);
+                    }
+                }
+            }  
+        });
+
+        window.addEventListener('load', function () {
+            localStorage.setItem('getSessionStorage',Date.now());
+            document.getElementById('showData').innerHTML = JSON.parse(sessionStorage.getItem('name'));
+        });
+        
+        function updateData() {
+            var nameText = document.getElementById('nameText').value;
+            sessionStorage.setItem('name', JSON.stringify(nameText));
+            var showData = document.getElementById('showData');
+            showData.innerHTML = nameText;
+
+            localStorage.setItem('dataUpdated', JSON.stringify(sessionStorage));
+            localStorage.removeItem('dataUpdated');
+        };
+
+    </script>
+</head>
+
+<body>
+    <h1> Share Updated Data Accross tabs
+    </h1>
+    <input id="nameText" placeholder="Enter your data"></input>
+    <button onclick="updateData()"> updateData</button>
+    <p id="showData">empty data</p>
+
+</body>
+
+</html>
